@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dog Breeds Explorer | Pet Hub</title>
+
+<style>
+/* ============================================================
+   PET HUB — SHARED DESIGN TOKENS
+   Palette: cream background, deep plum nav, golden-yellow accent,
+   forest-teal for success states, warm coral for errors.
+   Typography: Fredoka (playful display) + Inter (clean body/UI).
+   Kept identical to the tokens used on the Cats page for
+   cross-page consistency.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
+
+:root{
+  --plum: #2B2D42;
+  --plum-light: #3E4066;
+  --cream: #FFF8F0;
+  --cream-dark: #F3E9DA;
+  --gold: #F2B705;
+  --gold-dark: #D89E00;
+  --teal: #3D8361;
+  --coral: #E85D4C;
+  --ink: #26252B;
+  --paw: #C9BFAE;
+  --radius: 18px;
+  --shadow: 0 10px 30px rgba(43,45,66,0.12);
+}
+
+*{ box-sizing: border-box; }
+
+html, body{
+  margin:0; padding:0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  scroll-behavior: smooth;
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* ============================================================
+   NAVIGATION BAR — matches Homepage / Cats page nav
+   ============================================================ */
+.navbar{
+  position: sticky; top:0; z-index: 100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 16px 6%;
+  background: var(--plum);
+  box-shadow: var(--shadow);
+}
+.nav-logo{
+  display:flex; align-items:center; gap:8px;
+  font-family:'Fredoka', sans-serif;
+  font-size: 1.4rem; font-weight:700;
+  color: var(--cream);
+  text-decoration:none;
+  letter-spacing: 0.3px;
+}
+.nav-logo span.paw{ font-size:1.3rem; }
+.nav-links{
+  display:flex; gap: 28px; list-style:none; margin:0; padding:0;
+}
+.nav-links a{
+  color: var(--cream-dark);
+  text-decoration:none;
+  font-weight:500;
+  font-size: 0.95rem;
+  padding: 6px 4px;
+  border-bottom: 2px solid transparent;
+  transition: color .2s ease, border-color .2s ease;
+}
+.nav-links a:hover, .nav-links a:focus-visible{
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+.nav-links a.active{
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+.nav-toggle{ display:none; }
+
+@media (max-width: 720px){
+  .nav-links{
+    position:absolute; top:64px; left:0; right:0;
+    flex-direction:column; gap:0;
+    background: var(--plum);
+    max-height:0; overflow:hidden;
+    transition: max-height .3s ease;
+  }
+  .nav-links.open{ max-height: 300px; }
+  .nav-links a{ padding: 14px 6%; display:block; border-bottom:1px solid rgba(255,255,255,0.08); }
+  .nav-toggle{
+    display:block; background:none; border:none; cursor:pointer;
+    color: var(--cream); font-size:1.6rem; line-height:1;
+  }
+}
+
+/* ============================================================
+   PAGE HEADER
+   ============================================================ */
+.page-header{
+  text-align:center;
+  padding: 56px 6% 24px;
+}
+.page-header h1{
+  font-family:'Fredoka', sans-serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin:0 0 8px;
+  color: var(--plum);
+}
+.page-header p{
+  margin:0; color: #6b6a72; font-size:1.05rem;
+}
+/* Whisker-style divider — signature decorative element, shared with Cats page */
+.whiskers{
+  width: 140px; height: 18px; margin: 18px auto 0;
+  background:
+    radial-gradient(circle at 50% 50%, var(--gold) 3px, transparent 3.5px) 50% 50% / 100% 100% no-repeat;
+  position: relative;
+}
+.whiskers::before, .whiskers::after{
+  content:""; position:absolute; top:50%; height:2px; width:55px;
+  background: var(--paw);
+}
+.whiskers::before{ left:0; transform: translateY(-50%) rotate(-8deg); }
+.whiskers::after{ right:0; transform: translateY(-50%) rotate(8deg); }
+
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+main{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 6% 80px;
+}
+
+/* ---- Search bar ---- */
+.search-wrap{
+  display:flex;
+  justify-content:center;
+  margin-bottom: 32px;
+}
+.search-box{
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+}
+.search-box input{
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  padding: 14px 20px 14px 44px;
+  border-radius: 999px;
+  border: 1px solid var(--cream-dark);
+  background: #fff;
+  box-shadow: var(--shadow);
+  color: var(--ink);
+}
+.search-box input:focus{
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(242,183,5,0.25);
+}
+.search-box input::placeholder{ color: #a8a6b0; }
+.search-box .search-icon{
+  position:absolute; left:18px; top:50%; transform: translateY(-50%);
+  font-size: 1.05rem; opacity:0.5; pointer-events:none;
+}
+
+/* ---- Loading indicator ---- */
+.loader{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  font-size: 1rem;
+  color: var(--plum-light);
+  padding: 32px 0;
+}
+.loader.visible{ display:flex; }
+.paw-spinner{
+  width: 22px; height:22px;
+  border: 3px solid var(--cream-dark);
+  border-top-color: var(--gold);
+  border-radius:50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin{ to{ transform: rotate(360deg); } }
+
+/* ---- Error / empty states ---- */
+.state-box{
+  display:none;
+  max-width: 520px;
+  margin: 20px auto;
+  text-align:center;
+  background: #FDECEA;
+  border: 1px solid var(--coral);
+  color: #9A2E22;
+  padding: 18px 20px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+}
+.state-box.visible{ display:block; }
+.state-box.empty{
+  background: var(--cream-dark);
+  border-color: var(--paw);
+  color: var(--plum-light);
+}
+
+/* ---- Results count ---- */
+.results-count{
+  text-align:center;
+  font-family:'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  color: #8a8894;
+  margin-bottom: 24px;
+}
+
+/* ---- Breed cards grid ---- */
+.breed-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 22px;
+}
+
+.breed-card{
+  position: relative;
+  background: #ffffff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 26px 24px 22px;
+  overflow:hidden;
+  border: 1px solid var(--cream-dark);
+  display:flex;
+  flex-direction:column;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.breed-card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 14px 34px rgba(43,45,66,0.16);
+}
+/* Paw-print watermark, brand touch shared with Cats page */
+.breed-card::after{
+  content: "🐾";
+  position:absolute;
+  right: -12px; bottom: -16px;
+  font-size: 5.5rem;
+  opacity: 0.05;
+  transform: rotate(-15deg);
+  pointer-events:none;
+}
+
+.breed-name{
+  font-family:'Fredoka', sans-serif;
+  font-size: 1.25rem;
+  color: var(--plum);
+  margin: 0 0 8px;
+}
+
+.breed-desc{
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--ink);
+  margin: 0 0 16px;
+  flex-grow: 1;
+}
+
+.breed-meta{
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+  font-size: 0.85rem;
+  border-top: 1px dashed var(--cream-dark);
+  padding-top: 14px;
+}
+.breed-meta .row{
+  display:flex;
+  gap: 6px;
+}
+.breed-meta .label{
+  font-family:'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gold-dark);
+  font-weight:600;
+  flex-shrink:0;
+}
+.breed-meta .value{ color: #55535e; }
+
+footer{
+  text-align:center;
+  padding: 24px 6% 40px;
+  font-size: 0.85rem;
+  color: #9a98a1;
+}
+</style>
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVIGATION BAR (matches Homepage nav structure/branding)
+       ============================================================ -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo"><span class="paw">🐾</span> Pet Hub</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dogs.html" class="active">Dogs</a></li>
+      <li><a href="cats.html">Cats</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============================================================
+       PAGE HEADER
+       ============================================================ -->
+  <header class="page-header">
+    <h1>Dog Breeds Explorer</h1>
+    <p>Browse and search over 280 dog breeds from around the world.</p>
+    <div class="whiskers" aria-hidden="true"></div>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <main>
+
+    <!-- Search bar used to filter breeds by name -->
+    <div class="search-wrap">
+      <div class="search-box">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search breeds by name... (e.g. Beagle)"
+          aria-label="Search dog breeds by name"
+        >
+      </div>
+    </div>
+
+    <!-- Loading indicator, shown while the initial fetch is in progress -->
+    <div class="loader" id="loader">
+      <span class="paw-spinner"></span> Fetching dog breeds...
+    </div>
+
+    <!-- Error message box, shown only if the API request fails -->
+    <div class="state-box" id="errorBox">
+      Couldn't load dog breeds right now. Please check your connection and try again.
+    </div>
+
+    <!-- Empty-state box, shown when a search returns no matches -->
+    <div class="state-box empty" id="emptyBox">
+      No breeds found matching your search. Try a different name.
+    </div>
+
+    <!-- Number of breeds currently displayed -->
+    <p class="results-count" id="resultsCount"></p>
+
+    <!-- Breed cards are injected here by dogs.js -->
+    <div class="breed-grid" id="breedGrid" aria-live="polite"></div>
+
+  </main>
+
+  <footer>&copy; 2026 Pet Hub. Made for dog (and human) enjoyment.</footer>
+
+  <!-- Page logic lives in its own file, per project structure -->
+  <script src="dogs.js"></script>
+</body>
+</html>
