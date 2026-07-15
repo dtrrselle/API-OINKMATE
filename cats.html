@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pet Hub | Cat Facts Generator</title>
+
+  <!-- Google Font: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ============================================= */
+    /* 1. CSS VARIABLES (Color Palette & Font)        */
+    /* ============================================= */
+    :root {
+      --color-primary: #4caf50; /* Green - used for main actions */
+      --color-secondary: #2196f3; /* Blue - used for secondary actions/links */
+      --color-background: #f5f7fa; /* Light grey/blue page background */
+      --color-text: #333333; /* Main text color */
+      --color-white: #ffffff;
+      --color-error: #e53935; /* Red for error messages */
+      --color-success: #43a047; /* Green for success messages */
+
+      --radius-md: 12px; /* Standard rounded corners */
+      --radius-lg: 20px; /* Larger rounded corners for cards */
+
+      --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08); /* Soft card shadow */
+      --shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.12); /* Shadow on hover */
+
+      --transition-fast: 0.2s ease;
+      --transition-medium: 0.35s ease;
+    }
+
+    /* ============================================= */
+    /* 2. GLOBAL RESET & BASE STYLES                  */
+    /* ============================================= */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box; /* Makes width/height calculations predictable */
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: var(--color-background);
+      color: var(--color-text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    button {
+      font-family: inherit; /* Buttons inherit Poppins font */
+      cursor: pointer;
+      border: none;
+      outline: none;
+    }
+
+    /* ============================================= */
+    /* 3. NAVIGATION BAR                              */
+    /* ============================================= */
+    .navbar {
+      background-color: var(--color-white);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+    }
+
+    /* Brand / Logo styling */
+    .nav-brand {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .nav-brand span {
+      color: var(--color-secondary);
+    }
+
+    /* Desktop nav links */
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-links li a {
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 0.5rem 0;
+      position: relative;
+      transition: color var(--transition-fast);
+    }
+
+    /* Underline animation on hover */
+    .nav-links li a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--color-primary);
+      transition: width var(--transition-fast);
+    }
+
+    .nav-links li a:hover {
+      color: var(--color-primary);
+    }
+
+    .nav-links li a:hover::after {
+      width: 100%;
+    }
+
+    /* Highlight the current active page (Cats) */
+    .nav-links li a.active {
+      color: var(--color-primary);
+    }
+
+    .nav-links li a.active::after {
+      width: 100%;
+    }
+
+    /* Hamburger menu button (mobile only) */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      padding: 0.4rem;
+    }
+
+    .nav-toggle span {
+      width: 25px;
+      height: 3px;
+      background-color: var(--color-text);
+      border-radius: 2px;
+      transition: var(--transition-fast);
+    }
+
+    /* ============================================= */
+    /* 4. RESPONSIVE NAVBAR (MOBILE)                  */
+    /* ============================================= */
+    @media (max-width: 768px) {
+      .nav-toggle {
+        display: flex; /* Show hamburger icon on small screens */
+      }
+
+      .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: var(--color-white);
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height var(--transition-medium);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+      }
+
+      /* When menu is open, this class is toggled by JS */
+      .nav-links.open {
+        max-height: 300px;
+      }
+
+      .nav-links li {
+        width: 100%;
+        text-align: center;
+      }
+
+      .nav-links li a {
+        display: block;
+        padding: 1rem;
+      }
+
+      .nav-links li a::after {
+        display: none; /* Hide underline effect on mobile */
+      }
+    }
+
+    /* ============================================= */
+    /* 5. PAGE HERO / HEADER SECTION                  */
+    /* ============================================= */
+    .page-header {
+      text-align: center;
+      padding: 3rem 1.5rem 1.5rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .page-header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 0.6rem;
+    }
+
+    .page-header h1 .highlight {
+      color: var(--color-primary);
+    }
+
+    .page-header p {
+      color: #666666;
+      font-size: 1rem;
+    }
+
+    /* ============================================= */
+    /* 6. MAIN CONTENT LAYOUT                         */
+    /* ============================================= */
+    .main-content {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* ============================================= */
+    /* 7. CAT FACT CARD                               */
+    /* ============================================= */
+    .fact-card {
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      transition: box-shadow var(--transition-medium);
+    }
+
+    .fact-card:hover {
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* Small cat icon at the top of the card */
+    .fact-icon {
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .fact-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Where the actual cat fact text is displayed */
+    .fact-text {
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: var(--color-text);
+      margin-bottom: 1.5rem;
+      min-height: 60px; /* Prevents layout jump while loading */
+      display: flex;
+      align-items: center;
+    }
+
+    /* Character length info row */
+    .fact-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eef1f5;
+    }
+
+    .fact-length {
+      font-size: 0.9rem;
+      color: #666666;
+    }
+
+    .fact-length strong {
+      color: var(--color-primary);
+      font-size: 1rem;
+    }
+
+    /* ============================================= */
+    /* 8. STATUS MESSAGES (loading / error / success) */
+    /* ============================================= */
+    .status-message {
+      display: none; /* Hidden by default, shown via JS */
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 1rem;
+    }
+
+    .status-message.show {
+      display: flex;
+    }
+
+    .status-message.loading {
+      background-color: #e3f2fd;
+      color: var(--color-secondary);
+    }
+
+    .status-message.error {
+      background-color: #fdecea;
+      color: var(--color-error);
+    }
+
+    .status-message.success {
+      background-color: #e8f5e9;
+      color: var(--color-success);
+    }
+
+    /* Small spinning loader icon */
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--color-secondary);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ============================================= */
+    /* 9. BUTTONS                                     */
+    /* ============================================= */
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      flex: 1;
+      min-width: 160px;
+      padding: 0.9rem 1.2rem;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn:active {
+      transform: scale(0.97); /* Little press animation on click */
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Primary button - Generate New Fact */
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      box-shadow: 0 6px 16px rgba(76, 175, 80, 0.35);
+    }
+
+    /* Secondary button - Copy Fact */
+    .btn-secondary {
+      background-color: var(--color-white);
+      color: var(--color-secondary);
+      border: 2px solid var(--color-secondary);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background-color: var(--color-secondary);
+      color: var(--color-white);
+    }
+
+    /* ============================================= */
+    /* 10. FOOTER                                     */
+    /* ============================================= */
+    .footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: #999999;
+      font-size: 0.85rem;
+    }
+
+    /* ============================================= */
+    /* 11. RESPONSIVE ADJUSTMENTS                     */
+    /* ============================================= */
+    @media (max-width: 480px) {
+      .page-header h1 {
+        font-size: 1.7rem;
+      }
+
+      .fact-card {
+        padding: 1.5rem;
+      }
+
+      .fact-text {
+        font-size: 1rem;
+      }
+
+      .button-group {
+        flex-direction: column; /* Stack buttons on very small screens */
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ============================================= -->
+  <!-- NAVIGATION BAR                                 -->
+  <!-- ============================================= -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">Pet <span>Hub</span></a>
+
+      <!-- Hamburger button, only visible on mobile (toggled via JS) -->
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- Navigation links -->
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="dogs.html">Dogs</a></li>
+        <li><a href="cats.html" class="active">Cats</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ============================================= -->
+  <!-- PAGE HEADER                                    -->
+  <!-- ============================================= -->
+  <header class="page-header">
+    <h1>Cat Facts <span class="highlight">Generator</span></h1>
+    <p>Discover fun and interesting facts about cats, one click at a time.</p>
+  </header>
+
+  <!-- ============================================= -->
+  <!-- MAIN CONTENT                                   -->
+  <!-- ============================================= -->
+  <main class="main-content">
+    <!-- Status message area: shows loading / error / success text -->
+    <div class="status-message" id="statusMessage">
+      <span class="spinner" id="statusSpinner"></span>
+      <span id="statusText"></span>
+    </div>
+
+    <!-- Card that displays the cat fact -->
+    <section class="fact-card">
+      <div class="fact-icon">🐱</div>
+
+      <p class="fact-label">Fact</p>
+      <p class="fact-text" id="factText">
+        Click "Generate New Fact" to fetch a random cat fact!
+      </p>
+
+      <div class="fact-meta">
+        <p class="fact-length">
+          Character Length: <strong id="factLength">0</strong>
+        </p>
+      </div>
+    </section>
+
+    <!-- Action buttons -->
+    <div class="button-group">
+      <button class="btn btn-primary" id="generateBtn">
+        🔄 Generate New Fact
+      </button>
+      <button class="btn btn-secondary" id="copyBtn">
+        📋 Copy Fact
+      </button>
+    </div>
+  </main>
+
+  <!-- ============================================= -->
+  <!-- FOOTER                                         -->
+  <!-- ============================================= -->
+  <footer class="footer">
+    <p>&copy; 2026 Pet Hub. All rights reserved.</p>
+  </footer>
+
+  <!-- Link external JavaScript file -->
+  <script src="cats.js"></script>
+</body>
+</html>
